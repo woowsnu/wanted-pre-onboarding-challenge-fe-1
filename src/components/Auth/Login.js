@@ -8,23 +8,23 @@ const Login = () => {
   const [password, setPassword] = useState("");
 
   // 이 코드는 일종의 속임수, 오류처럼 보이지 않기 위해 쓴 것
-  const [enteredEmailIsValid, setEnteredEmailIsValid] = useState(false);
+  // const [enteredEmailIsValid, setEnteredEmailIsValid] = useState(false);
   // 사용자가 입력창을 사용했는지에 대한 상태
   const [enteredEmailTouched, setEnteredEmailTouched] = useState(false);
+  const regEmail = /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*.[a-zA-Z]{2,3}$/i;
+  const enteredEmailIsValid = email.trim() !== '' && regEmail;
+  // 입력값이 유효하지 않고 && 입력이 이뤄졌을 때
+  const emailInputIsInvalid = !enteredEmailIsValid && enteredEmailTouched;
 
   const emailInputChangeHandler = (event) => {
     setEmail(event.target.value);
-
-    if (event.target.value.trim() !== "") {
-      setEnteredEmailIsValid(true);
-    }
   };
 
   const emailInputBlurHandler = (event) => {
     setEnteredEmailTouched(true);
 
     if (email.trim() == "") {
-      setEnteredEmailIsValid(false);
+      //setEnteredEmailIsValid(false);
     }
   };
 
@@ -41,17 +41,16 @@ const Login = () => {
     };
 
     if (email.trim() == "") {
-      setEnteredEmailIsValid(false);
+      //setEnteredEmailIsValid(false);
       return;
     }
 
     loginAPI(user);
-    setEnteredEmailIsValid(true);
+    //setEnteredEmailIsValid(true);
     setEmail("");
   };
 
-  // 입력값이 유효하지 않고 && 입력이 이뤄졌을 때
-  const emailInputIsInvalid = !enteredEmailIsValid && enteredEmailTouched;
+  
   const emailInputClasses = emailInputIsInvalid
     ? "form-control invalid"
     : "form-control";

@@ -9,6 +9,7 @@ function App() {
     <div className="App">
       <Routes>
         <Route path="/" element={<Main />} exact={true} />
+        <Route path="/todos" element={<Main />} />
         <Route path="/auth" element={<Login />} />
         <Route path="/auth/signup" element={<Signup />} />
       </Routes>

@@ -1,25 +1,53 @@
-import { type } from "@testing-library/user-event/dist/type";
-import React from "react";
+import React, { useRef } from "react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { signupAPI } from "../../api/auth";
 
 const Signup = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const regEmail =
-    /([\w-.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/;
-  
-    const [emailIsValid, setEmailIsValid] = useState(false);
+  const emailRegex =
+    /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*.[a-zA-Z]{2,3}$/i;
 
-  //const emailInputIsInvalid = regEmail.test() && email.trim() !== "";
+  const [emailIsValid, setEmailIsValid] = useState(false);
+  const [passwordIsValid, setPasswordIsValid] = useState(false);
+
+  const checkEmailValid = () => {
+    if (email.match(emailRegex) !== null && email.trim() !== "") {
+      setEmailIsValid(true);
+    } else {
+      console.log("이메일은 @와 .을 포함합니다.")
+    }
+  };
+
+  const checkPasswordValid = () => {
+    if (password.length >= 7) {
+      setPasswordIsValid(true);
+    } else {
+      console.log("비밀번호는 8자 이상 입력해주세요")
+    }
+  };
+  
+  // console.log(emailRef)
+  // const enterdEmail = emailRef.current
+  // const enterdPassword = passwordRef.current
+  // const [inputIsValid, setInputIsValid] = useState(false);
+  
+  // const checkValid = () => {
+  //   const inputCondition =
+  //     enterdEmail.match(emailRegex) !== null &&
+  //     enterdEmail.trim() !== "" &&
+  //     enterdPassword.length > 7 &&
+  //     enterdPassword.trim() !== "";
+  //   if (inputCondition) {
+  //     setInputIsValid(true);
+  //   }
+  // };
 
   const emailInputChangeHandler = (event) => {
     setEmail(event.target.value);
-
-    // if (regEmail.test()) {
-    //   setEmailIsValid(false);
-    // }
   };
 
   const passwordInputHandler = (event) => {
@@ -28,11 +56,11 @@ const Signup = () => {
 
   const onSubmitHandler = (event) => {
     event.preventDefault();
+    checkEmailValid();
+    checkPasswordValid();
 
-    if (!regEmail.test()) {
-      setEmailIsValid(false);
-    } else {
-      setEmailIsValid(true);
+    if (!emailIsValid && !passwordIsValid) {
+      return;
     }
 
     const user = {
@@ -40,12 +68,15 @@ const Signup = () => {
       password: password,
     };
 
-    
-    console.log(emailIsValid);
-    console.log(user);
-    signupAPI(user);
-
-
+    signupAPI(user).then((response) => {
+      if (response.ok) {
+        console.log(response);
+        console.log("회원가입 성공!!!");
+        navigate("/");
+      } else {
+        console.log("회원가입에 실패했습니다.");
+      }
+    });
   };
 
   return (

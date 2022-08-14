@@ -1,30 +1,36 @@
-import React,{ useState }  from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { loginAPI } from "../../api/auth";
 
 const Login = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  // 이 코드는 일종의 속임수, 오류처럼 보이지 않기 위해 쓴 것
-  // const [enteredEmailIsValid, setEnteredEmailIsValid] = useState(false);
-  // 사용자가 입력창을 사용했는지에 대한 상태
-  const [enteredEmailTouched, setEnteredEmailTouched] = useState(false);
-  const regEmail = /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*.[a-zA-Z]{2,3}$/i;
-  const enteredEmailIsValid = email.trim() !== '' && regEmail;
-  // 입력값이 유효하지 않고 && 입력이 이뤄졌을 때
-  const emailInputIsInvalid = !enteredEmailIsValid && enteredEmailTouched;
+  const emailRegex =
+    /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*.[a-zA-Z]{2,3}$/i;
+
+  const [emailIsValid, setEmailIsValid] = useState(false);
+  const [passwordIsValid, setPasswordIsValid] = useState(false);
+
+  const checkEmailValid = () => {
+    if (email.match(emailRegex) !== null && email.trim() !== "") {
+      setEmailIsValid(true);
+    } else {
+      console.log("이메일은 @와 .을 포함합니다.");
+    }
+  };
+
+  const checkPasswordValid = () => {
+    if (password.length >= 7) {
+      setPasswordIsValid(true);
+    } else {
+      console.log("비밀번호는 8자 이상 입력해주세요");
+    }
+  };
 
   const emailInputChangeHandler = (event) => {
     setEmail(event.target.value);
-  };
-
-  const emailInputBlurHandler = (event) => {
-    setEnteredEmailTouched(true);
-
-    if (email.trim() == "") {
-      //setEnteredEmailIsValid(false);
-    }
   };
 
   const passwordInputChangeHandler = (event) => {
@@ -33,43 +39,43 @@ const Login = () => {
 
   const formSubmissionHandler = (event) => {
     event.preventDefault();
-    setEnteredEmailTouched(true);
+    checkEmailValid();
+    checkPasswordValid();
+
+    // if (!emailIsValid & !passwordIsValid) {
+    //   return;
+    // }
+
     const user = {
       email: email,
       password: password,
     };
 
-    if (email.trim() == "") {
-      //setEnteredEmailIsValid(false);
-      return;
-    }
-
-    loginAPI(user);
-    //setEnteredEmailIsValid(true);
+    loginAPI(user)
+    .then(async (response) => {
+      if (response.ok) {
+        const res = await response.json();
+        localStorage.setItem(response, res.token);
+        console.log("로그인 성공!!")
+      }
+    })
+    navigate("/");
     setEmail("");
+    setPassword("");
   };
-
-  
-  const emailInputClasses = emailInputIsInvalid
-    ? "form-control invalid"
-    : "form-control";
 
   return (
     <div>
       <form onSubmit={formSubmissionHandler}>
-        <div className={emailInputClasses}>
+        <div>
           <label htmlFor="email">ID</label>
           <input
             type="text"
             id="email"
             onChange={emailInputChangeHandler}
-            onBlur={emailInputBlurHandler}
             placeholder="hello@word.com"
             value={email}
           />
-          {emailInputIsInvalid && (
-            <p className="error-text">Email must not be empty.</p>
-          )}
         </div>
         <div>
           <label htmlFor="password">비밀번호</label>
